@@ -14,7 +14,7 @@ const SignUp = () => {
     phoneNumber: "",
     password: "",
     confirmPassword: "",
-    role: "customer",
+    // role: "customer",
   });
   const [errors, setErrors] = useState({});
 
@@ -122,11 +122,11 @@ const SignUp = () => {
             onChange={handleChange}
           />
 
-          <label>Role</label>
+          {/* <label>Role</label>
           <select name="role" value={formData.role} onChange={handleChange}>
             <option value="customer">Customer</option>
             <option value="employee">Employee</option>
-          </select>
+          </select> */}
 
           <label>
             Email <span className="required">*</span>

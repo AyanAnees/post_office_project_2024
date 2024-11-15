@@ -10,8 +10,9 @@ const handleCustomerShopRoutes = require("./ShopRoute");//customer shop
 const handleReportsRoute = require("./ReportsRoute");//reports
 const handleDepartmentRoute = require("./AddDepartmentRoute");
 const handleEmployeeRoutes = require("./EmployeeProfileRoute");
-const handlePackagesRoute = require('./PackageRoute');
-const handleManagerPortalRoutes = require('./ManagerPortalRoute');
+const handlePackagesRoute = require("./PackageRoute");
+const handleManagerPortalRoutes = require("./ManagerPortalRoute");
+const handleNotificationsRoutes = require('./NotificationsRoute');
 
 const appRoute = (req, res) => {
   const parsedUrl = url.parse(req.url, true);
@@ -22,15 +23,12 @@ const appRoute = (req, res) => {
   // Route handling
   if (parsedUrl.pathname.startsWith("/api/location")) {
     handleLocationRoutes(req, res);
-
   } else if (parsedUrl.pathname.startsWith("/api/customer")) {
-
     if (parsedUrl.pathname === "/api/customer/balance") {
-        handleCustomerShopRoutes(req, res);
+      handleCustomerShopRoutes(req, res);
     } else {
-        handleCustomerRoutes(req, res);
+      handleCustomerRoutes(req, res);
     }
-    
   } else if (parsedUrl.pathname.startsWith("/api/login")) {
     handleLoginRoutes(req, res);
   } else if (parsedUrl.pathname.startsWith("/api/PackagePortal")) {
@@ -39,21 +37,30 @@ const appRoute = (req, res) => {
     handleStopRoutes(req, res);
   } else if (parsedUrl.pathname.startsWith("/api/reports")) {
     handleReportsRoute(req, res);
+  } else if (parsedUrl.pathname.startsWith("/shop")) { // Why are there two of these?
+    handleShopRoute(req, res); // Different handler here
   } else if (parsedUrl.pathname.startsWith("/departments")) {
     handleDepartmentRoute(req, res);
   } else if (parsedUrl.pathname.startsWith("/api/tracking")) {
     handleTrackingRoutes(req, res);
+  } else if (parsedUrl.pathname.startsWith("/api/reports")) {
+    handleReportRoutes(req, res);
   } else if (parsedUrl.pathname.startsWith("/shop")) { // Why are there two of these?
     handleEmployeeShopRoutes(req, res); // Different handler here
   } else if (parsedUrl.pathname.startsWith("/api/shop")) {
     handleCustomerShopRoutes(req, res);
   } else if (parsedUrl.pathname.startsWith("/api/employee")) {
     handleEmployeeRoutes(req, res);
-  } else if (parsedUrl.pathname.startsWith('/packages')) {
+  } else if (parsedUrl.pathname.startsWith("/packages")) {
     handlePackagesRoute(req, res);
-  } else if (parsedUrl.pathname.startsWith('/api/ManagerPortal')) {
+  } else if (parsedUrl.pathname.startsWith("/api/ManagerPortal")) {
     handleManagerPortalRoutes(req, res);
-  } else {
+  }
+  else if (parsedUrl.pathname.startsWith('/api/notifications')) {
+    handleNotificationsRoutes(req, res);
+}
+
+  else {
     res.writeHead(404, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ message: "Not Found" }));
   }
