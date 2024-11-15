@@ -3,7 +3,6 @@ const handleLocationRoutes = require("./AddLocationRoute"); // Adjust the path a
 const handleCustomerRoutes = require("./CustomerProfileRoute"); // Add other routes as necessary
 const handleLoginRoutes = require("./LoginRoute"); // Add other routes as necessary
 const handlePackagePortalRoutes = require("./PackagePortalRoute");
-const handleStopRoutes = require("./StopRoute");
 const handleTrackingRoutes = require("./TrackingHistoryRoute");
 const handleEmployeeShopRoutes = require("./EmployeeShopRoute");//employee shop
 const handleCustomerShopRoutes = require("./ShopRoute");//customer shop
@@ -37,8 +36,6 @@ const appRoute = (req, res) => {
     handleStopRoutes(req, res);
   } else if (parsedUrl.pathname.startsWith("/api/reports")) {
     handleReportsRoute(req, res);
-  } else if (parsedUrl.pathname.startsWith("/shop")) { // Why are there two of these?
-    handleShopRoute(req, res); // Different handler here
   } else if (parsedUrl.pathname.startsWith("/departments")) {
     handleDepartmentRoute(req, res);
   } else if (parsedUrl.pathname.startsWith("/api/tracking")) {

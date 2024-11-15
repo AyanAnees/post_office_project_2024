@@ -1,250 +1,130 @@
-// IMPORTANT PART (REVERT IN CASE ISSUES)
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "./Login.css";
+import { SERVER_URL } from "../../App";
 
+const Login = () => {
+  const navigate = useNavigate();
 
-// import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-// import { useEffect, useState } from "react";
-// import AboutUs from "./components/AboutUs/AboutUs";
-// import AddDepartment from "./components/AddDepartment/AddDepartment";
-// import AddLocation from "./components/AddLocation/AddLocation";
-// import CustomerProfile from "./components/CustomerProfile/CustomerProfile";
-// import Dashboard from "./components/Dashboard/Dashboard";
-// import EmployeeProfile from "./components/EmployeeProfile/EmployeeProfile";
-// import Home from "./components/Home/Home";
-// import Login from "./components/Login/Login";
-// import ManagerPortal from "./components/ManagerPortal/ManagerPortal";
-// import Navbar from "./components/navBar/navBar";
-// import PackagePortal from "./components/PackagePortal/PackagePortal";
-// import Reports from "./components/Reports/Reports";
-// import Shop from "./components/Shop/Shop";
-// import SignUp from "./components/SignUp/SignUp";
-// import TrackingHistory from "./components/TrackingHistory/TrackingHistory";
-// import EmployeeShop from "./components/Shop/EmployeeShop";
-// import Stops from "./components/PackagePortal/Stops";
-// import Contact from "./components/ContactUS/contact";
-// import CustomerSearch from "./components/CustomerSearch/CustomerSearch";
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState({});
+  const [loginError, setLoginError] = useState("");
 
-// const SERVER_URL = process.env.REACT_APP_SERVER_URL || "http://localhost:3001";
-// export { SERVER_URL };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
 
-// // Function to determine navigation links based on user role
-// const getLinksForRole = (role) => {
-//   switch (role) {
-//     case "customer":
-//       return [
-//         ["", "Home"],
-//         ["Dashboard", "Dashboard"],
-//         ["TrackingHistory", "Tracking History"],
-//         ["Shop", "Shop"],
-//         ["AboutUs", "About"],
-//         ["Contactus", "Contact Us"],
-//         ["CustomerProfile", "Profile"],
-//       ];
-//     case "employee":
-//       return [
-//         ["", "Home"],
-//         ["PackagePortal", "Package Portal"],
-//         ["TrackingHistory", "Tracking History"],
-//         ["EmployeeProfile", "Profile"],
-//         ["EmployeeShop", "Shop"],
-//         ["Reports", "Reports"],
-//       ];
-//     case "manager":
-//       return [
-//         ["", "Home"],
-//         ["PackagePortal", "Package Portal"],
-//         ["TrackingHistory", "Tracking History"],
-//         ["ManagerPortal", "Manager Portal"],
-//         ["EmployeeProfile", "Profile"],
-//         ["EmployeeShop", "Shop"],
-//         ["Reports", "Reports"],
-//       ];
-//     case "Admin":
-//       return [
-//         ["", "Home"],
-//         ["PackagePortal", "Package Portal"],
-//         ["TrackingHistory", "Tracking History"],
-//         ["Reports", "Reports"],
-//         ["ManagerPortal", "Manager Portal"],
-//         ["AddDepartment", "Add Department"],
-//         ["AddLocation", "Add Location"],
-//         ["EmployeeProfile", "Profile"],
-//         ["EmployeeShop", "Shop"],
-//       ];
-//     default:
-//       return [
-//         ["", "Home"],
-//         ["Shop", "Shop"],
-//         ["AboutUs", "About Us"],
-//         ["Contactus", "Contact Us"],
-//         ["Login", "Login/Register"]
-//       ];
-//   }
-// };
+  const validateForm = () => {
+    const newErrors = {};
+    const { email, password } = formData;
 
-// const App = () => {
-//   const [role, setRole] = useState(localStorage.getItem("role") || "");
+    if (!email) newErrors.email = "Email is required";
+    if (!password) newErrors.password = "Password is required";
 
-//   // Update role dynamically when localStorage changes
-//   useEffect(() => {
-//     const storedRole = localStorage.getItem("role");
-//     setRole(storedRole || "");
-//   }, []);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-//   const links = getLinksForRole(role);
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
-//   return (
-//     <Router>
-//       <Navbar links={links} />
-//       <Routes>
-//         <Route path="/" element={<Home />} />
-//         <Route path="/Login" element={<Login />} />
-//         <Route path="/SignUp" element={<SignUp />} />
-//         <Route path="/Shop" element={<Shop />} />
-//         <Route path="/PackagePortal" element={<PackagePortal />} />
-//         <Route path="/AboutUs" element={<AboutUs />} />
-//         <Route path="/TrackingHistory" element={<TrackingHistory />} />
-//         <Route path="/CustomerProfile" element={<CustomerProfile />} />
-//         <Route path="/EmployeeProfile" element={<EmployeeProfile />} />
-//         <Route path="/ManagerPortal" element={<ManagerPortal />} />
-//         <Route path="/Dashboard" element={<Dashboard />} />
-//         <Route path="/Reports" element={<Reports />} />
-//         <Route path="/AddDepartment" element={<AddDepartment />} />
-//         <Route path="/AddLocation" element={<AddLocation />} />
-//         <Route path="/EmployeeShop" element={<EmployeeShop />} />
-//         <Route path="/stops/:packageId" element={<Stops />} />
-//         <Route path="/ContactUS" element={<Contact />} />
-//         <Route path="/CustomerSearch" element={<CustomerSearch />} />
-//       </Routes>
-//     </Router>
-//   );
-// };
+    try {
+      const response = await fetch(`${SERVER_URL}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-// export default App;
+      const result = await response.json();
+      console.log(result);
 
+      if (response.ok) {
+        // Set role and related information in localStorage
+        if (result["Customer_Email_Address"]) {
+          localStorage.setItem("role", "customer");
+          localStorage.setItem("Customer_ID", result.Customer_ID);
+          localStorage.setItem(
+            "Customer_Email_Address",
+            result.Customer_Email_Address
+          );
+          navigate("/CustomerProfile");
+        } else if (result["Role"] === "manager") {
+          localStorage.setItem("role", "manager");
+          localStorage.setItem("Employee_ID", result.Employee_ID);
+          localStorage.setItem("Employee_Email", result.Email);
+          localStorage.setItem("Manager_Department_ID", result.department_id);
+          navigate("/ManagerPortal");
+        } else if (result["Role"] === "Admin") {
+          localStorage.setItem("role", "Admin");
+          localStorage.setItem("Employee_ID", result.Employee_ID);
+          localStorage.setItem("Employee_Email", result.Email);
+          navigate("/EmployeeProfile");
+        } else {
+          localStorage.setItem("role", "employee");
+          localStorage.setItem("Employee_ID", result.Employee_ID);
+          localStorage.setItem("Employee_Email", result.Email);
+          navigate("/EmployeeProfile");
+        }
 
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { useEffect, useState } from "react";
-import AboutUs from "./components/AboutUs/AboutUs";
-import AddDepartment from "./components/AddDepartment/AddDepartment";
-import AddLocation from "./components/AddLocation/AddLocation";
-import CustomerProfile from "./components/CustomerProfile/CustomerProfile";
-import Dashboard from "./components/Dashboard/Dashboard";
-import EmployeeProfile from "./components/EmployeeProfile/EmployeeProfile";
-import Home from "./components/Home/Home";
-import Login from "./components/Login/Login";
-import ManagerPortal from "./components/ManagerPortal/ManagerPortal";
-import Navbar from "./components/navBar/navBar";
-import PackagePortal from "./components/PackagePortal/PackagePortal";
-import Reports from "./components/Reports/Reports";
-import Shop from "./components/Shop/Shop";
-import SignUp from "./components/SignUp/SignUp";
-import TrackingHistory from "./components/TrackingHistory/TrackingHistory";
-import EmployeeShop from "./components/Shop/EmployeeShop";
-import Stops from "./components/PackagePortal/Stops";
-import Contact from "./components/ContactUS/contact";
-import CustomerSearch from "./components/CustomerSearch/CustomerSearch";
-import Notifications from "./components/Notifications/Notifications"; // Import Notifications component
-
-const SERVER_URL = process.env.REACT_APP_SERVER_URL || "http://localhost:3001";
-export { SERVER_URL };
-
-// Function to determine navigation links based on user role
-const getLinksForRole = (role) => {
-  switch (role) {
-    case "customer":
-      return [
-        ["", "Home"],
-        ["Dashboard", "Dashboard"],
-        ["TrackingHistory", "Tracking History"],
-        ["Shop", "Shop"],
-        ["Notifications", "Notifications"], // Add Notifications tab
-        ["AboutUs", "About"],
-        ["Contactus", "Contact Us"],
-        ["CustomerProfile", "Profile"],
-      ];
-    case "employee":
-      return [
-        ["", "Home"],
-        ["PackagePortal", "Package Portal"],
-        ["TrackingHistory", "Tracking History"],
-        ["Notifications", "Notifications"], // Add Notifications tab
-        ["EmployeeProfile", "Profile"],
-        ["EmployeeShop", "Shop"],
-        ["Reports", "Reports"],
-      ];
-    case "manager":
-      return [
-        ["", "Home"],
-        ["PackagePortal", "Package Portal"],
-        ["TrackingHistory", "Tracking History"],
-        ["ManagerPortal", "Manager Portal"],
-        ["Notifications", "Notifications"], // Add Notifications tab
-        ["EmployeeProfile", "Profile"],
-        ["EmployeeShop", "Shop"],
-        ["Reports", "Reports"],
-      ];
-    case "Admin":
-      return [
-        ["", "Home"],
-        ["PackagePortal", "Package Portal"],
-        ["TrackingHistory", "Tracking History"],
-        ["Notifications", "Notifications"], // Add Notifications tab
-        ["Reports", "Reports"],
-        ["ManagerPortal", "Manager Portal"],
-        ["AddDepartment", "Add Department"],
-        ["AddLocation", "Add Location"],
-        ["EmployeeProfile", "Profile"],
-        ["EmployeeShop", "Shop"],
-      ];
-    default:
-      return [
-        ["", "Home"],
-        ["Shop", "Shop"],
-        ["AboutUs", "About Us"],
-        ["Contactus", "Contact Us"],
-        ["Login", "Login/Register"],
-      ];
-  }
-};
-
-const App = () => {
-  const [role, setRole] = useState(localStorage.getItem("role") || "");
-
-  // Update role dynamically when localStorage changes
-  useEffect(() => {
-    const storedRole = localStorage.getItem("role");
-    setRole(storedRole || "");
-  }, []);
-
-  const links = getLinksForRole(role);
+        // Refresh the page to update navbar
+        window.location.reload();
+      } else {
+        setLoginError(result.message || "Login failed");
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      setLoginError("An error occurred during login. Please try again.");
+    }
+  };
 
   return (
-    <Router>
-      <Navbar links={links} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/Login" element={<Login />} />
-        <Route path="/SignUp" element={<SignUp />} />
-        <Route path="/Shop" element={<Shop />} />
-        <Route path="/PackagePortal" element={<PackagePortal />} />
-        <Route path="/AboutUs" element={<AboutUs />} />
-        <Route path="/TrackingHistory" element={<TrackingHistory />} />
-        <Route path="/CustomerProfile" element={<CustomerProfile />} />
-        <Route path="/EmployeeProfile" element={<EmployeeProfile />} />
-        <Route path="/ManagerPortal" element={<ManagerPortal />} />
-        <Route path="/Dashboard" element={<Dashboard />} />
-        <Route path="/Reports" element={<Reports />} />
-        <Route path="/AddDepartment" element={<AddDepartment />} />
-        <Route path="/AddLocation" element={<AddLocation />} />
-        <Route path="/EmployeeShop" element={<EmployeeShop />} />
-        <Route path="/stops/:packageId" element={<Stops />} />
-        <Route path="/ContactUS" element={<Contact />} />
-        <Route path="/CustomerSearch" element={<CustomerSearch />} />
-        <Route path="/Notifications" element={<Notifications />} /> {/* Add Notifications route */}
-      </Routes>
-    </Router>
+    <div className="login-container">
+      <div className="login-container-box">
+        <form onSubmit={handleSubmit}>
+          <h2>Login</h2>
+          <label>
+            Email <span className="required">*</span>
+          </label>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+          />
+          {errors.email && <p className="error">{errors.email}</p>}
+
+          <label>
+            Password <span className="required">*</span>
+          </label>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+          />
+          {errors.password && <p className="error">{errors.password}</p>}
+
+          <button type="submit" className="create">
+            Login
+          </button>
+
+          <p className="toggle-text">
+            Don't have an account? <Link to="/signup">Sign up here</Link>
+          </p>
+        </form>
+
+        {loginError && <p className="error">{loginError}</p>}
+      </div>
+    </div>
   );
 };
 
-export default App;
-
+export default Login;
