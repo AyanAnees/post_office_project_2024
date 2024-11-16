@@ -81,7 +81,7 @@ const PackagePortalRoute = (req, res) => {
                             senderId, recipientId, houseNumber, street, suffix,
                             city, state, zipCode, country, packageStatus,
                             length, width, height, weight, shippingMethod, employeeId
-                        } = req.body;
+                        } = body;
 
                         // Start transaction
                         const connection = await db.getConnection();
