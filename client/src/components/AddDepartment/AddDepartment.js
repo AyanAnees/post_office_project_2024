@@ -176,7 +176,7 @@ const AddDepartment = () => {
                 <input 
                     type="text"
                     name="departmentManager"
-                    placeholder="Department Manager ID"
+                    placeholder="Department Manager ID (Must be unique)"
                     value={departmentFields.departmentManager}
                     onChange={handleInputChange}
                     required
