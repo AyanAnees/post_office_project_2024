@@ -101,7 +101,7 @@ const BasicTable = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        Employee_ID = localStorage.getItem("Employee_ID")
+        const Employee_ID = localStorage.getItem("Employee_ID")
         const newPackage = { ...addFormValues, Employee_ID};
     
         try {
