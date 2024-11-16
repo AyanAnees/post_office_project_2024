@@ -101,7 +101,8 @@ const BasicTable = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const newPackage = { ...addFormValues };
+        Employee_ID = localStorage.getItem("Employee_ID")
+        const newPackage = { ...addFormValues, Employee_ID};
     
         try {
             const response = await fetch(`${SERVER_URL}/api/PackagePortal`, {

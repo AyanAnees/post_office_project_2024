@@ -30,7 +30,7 @@ const PackagePortalRoute = (req, res) => {
             p.Package_ID;
     `;
 
-    /*const validatePackageFields = (body) => {
+    const validatePackageFields = (body) => {
         const requiredFields = [
             'senderId', 'recipientId', 'houseNumber', 'street',
             'suffix', 'city', 'state', 'zipCode',
@@ -38,13 +38,13 @@ const PackagePortalRoute = (req, res) => {
             'height', 'weight', 'shippingMethod'
         ];
         return requiredFields.every(field => body[field]);
-    };*/
+    };
 
     const CalCost = (height, length, width, weight, shippingMethod) => {
         const shippingMethodCosts = { 'Express': 15, 'Air': 7, 'Ground': 0 };
         const methodCost = shippingMethodCosts[shippingMethod] || 0;
         return Math.ceil(length / 6) + Math.ceil(width / 6) +
-               Math.ceil(height / 6) + Math.ceil(weight) + methodCost;
+            Math.ceil(height / 6) + Math.ceil(weight) + methodCost;
     };
 
     switch (req.method) {
@@ -71,42 +71,84 @@ const PackagePortalRoute = (req, res) => {
         case 'POST':
             if (parsedUrl.pathname === '/api/PackagePortal') {
                 parseBody(req, async (body) => {
-                    /*if (!validatePackageFields(body)) {
+                    if (!validatePackageFields(body)) {
                         res.writeHead(400, { 'Content-Type': 'application/json' });
                         return res.end(JSON.stringify({ message: 'All fields are required' }));
-                    }*/
-
-                    const { senderId, recipientId, houseNumber, street, suffix,
-                            city, state, zipCode, country, packageStatus,
-                            length, width, height, weight, shippingMethod } = body;
-
-                    const cost = CalCost(height, length, width, weight, shippingMethod);
+                    }
 
                     try {
-                        const insertQuery = `
-                            INSERT INTO package (
-                                Sender_ID, Recipient_ID, Package_House_Number, Package_Street, 
-                                Package_Suffix, Package_City, Package_State, Package_Zip_Code, 
-                                Package_Country, Package_Status, Package_Length, Package_Width, 
-                                Package_Height, Package_Weight, Package_Shipping_Method, Package_Shipping_Cost
-                            ) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-                        `;
+                        const {
+                            senderId, recipientId, houseNumber, street, suffix,
+                            city, state, zipCode, country, packageStatus,
+                            length, width, height, weight, shippingMethod, employeeId
+                        } = req.body;
 
-                        await db.query(insertQuery, [
-                            senderId, recipientId, houseNumber, street,
-                            suffix, city, state, zipCode,
-                            country, packageStatus, length, width,
-                            height, weight, shippingMethod, cost
-                        ]);
+                        // Start transaction
+                        const connection = await db.getConnection();
+                        await connection.beginTransaction();
 
-                        const [lastPackageQuery] = await db.query(infoQuery);
-                        res.writeHead(201, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(lastPackageQuery[0]));
-                    } catch (error) {
-                        console.error('Error inserting package:', error);
-                        res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ message: 'Internal Server Error' }));
+                        try {
+                            // Step 1: Insert the package
+                            const insertPackageQuery = `
+                                    INSERT INTO package (
+                                        Sender_ID, Recipient_ID, Package_House_Number, Package_Street, 
+                                        Package_Suffix, Package_City, Package_State, Package_Zip_Code, 
+                                        Package_Country, Package_Status, Package_Length, Package_Width, 
+                                        Package_Height, Package_Weight, Package_Shipping_Method
+                                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                                `;
+                            const [packageResult] = await connection.query(insertPackageQuery, [
+                                senderId, recipientId, houseNumber, street, suffix,
+                                city, state, zipCode, country, packageStatus,
+                                length, width, height, weight, shippingMethod
+                            ]);
+
+                            const packageId = packageResult.insertId;
+
+                            // Step 2: Insert into tracking_history
+                            const insertTrackingQuery = `
+                                    INSERT INTO tracking_history (
+                                        Package_ID, Arrival_Date, Package_Status, Recipient_ID
+                                    ) VALUES (?, NOW(), ?, ?);
+                                `;
+                            await connection.query(insertTrackingQuery, [packageId, packageStatus, recipientId]);
+
+                            // Step 3: Find the employee's department location
+                            const findLocationQuery = `
+                                    SELECT d.Department_Location_ID
+                                    FROM employee AS e
+                                    JOIN departments AS d ON e.Employee_Department_ID = d.Department_ID
+                                    WHERE e.Employee_ID = ? AND e.Delete_Employee = FALSE;
+                                `;
+                            const [locationRows] = await connection.query(findLocationQuery, [employeeId]);
+
+                            if (locationRows.length === 0) {
+                                throw new Error('Invalid Employee ID or Employee not found.');
+                            }
+
+                            const stopLocation = locationRows[0].Department_Location_ID;
+
+                            // Step 4: Insert into stop
+                            const insertStopQuery = `
+                                    INSERT INTO stop (
+                                        Package_ID, Stop_Location, Stop_Arrival_Date
+                                    ) VALUES (?, ?, NOW());
+                                `;
+                            await connection.query(insertStopQuery, [packageId, stopLocation]);
+
+                            // Commit transaction
+                            await connection.commit();
+                            res.status(201).json({ message: 'Package added successfully.', packageId });
+                        } catch (err) {
+                            // Rollback transaction in case of error
+                            await connection.rollback();
+                            throw err;
+                        } finally {
+                            connection.release();
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        res.status(500).json({ error: 'An error occurred while adding the package.' });
                     }
                 });
             }
@@ -117,14 +159,14 @@ const PackagePortalRoute = (req, res) => {
             if (parsedUrl.pathname.startsWith('/api/PackagePortal/')) {
                 const Package_ID = parsedUrl.pathname.split('/')[3];
                 parseBody(req, async (body) => {
-                   /*if (!validatePackageFields(body) || !Package_ID) {
+                    if (!validatePackageFields(body) || !Package_ID) {
                         res.writeHead(400, { 'Content-Type': 'application/json' });
                         return res.end(JSON.stringify({ message: 'All fields are required' }));
-                    }*/
+                    }
 
                     const { senderId, recipientId, houseNumber, street, suffix,
-                            city, state, zipCode, country, packageStatus,
-                            length, width, height, weight, shippingMethod } = body;
+                        city, state, zipCode, country, packageStatus,
+                        length, width, height, weight, shippingMethod } = body;
 
                     const cost = CalCost(height, length, width, weight, shippingMethod);
 
