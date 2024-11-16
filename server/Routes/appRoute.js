@@ -41,8 +41,6 @@ const appRoute = (req, res) => {
     handleDepartmentRoute(req, res);
   } else if (parsedUrl.pathname.startsWith("/api/tracking")) {
     handleTrackingRoutes(req, res);
-  } else if (parsedUrl.pathname.startsWith("/api/reports")) {
-    handleReportRoutes(req, res);
   } else if (parsedUrl.pathname.startsWith("/shop")) { // Why are there two of these?
     handleEmployeeShopRoutes(req, res); // Different handler here
   } else if (parsedUrl.pathname.startsWith("/api/shop")) {

@@ -11,7 +11,7 @@ const BasicTable = () => {
     const [filteredData, setFilteredData] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [searchColumn, setSearchColumn] = useState("sender_name");
-    
+
     // Separate states for add and edit forms
     const [addFormValues, setAddFormValues] = useState({
         senderId: "",
@@ -31,7 +31,7 @@ const BasicTable = () => {
         packageStatus: "Received",
     });
     const [editFormValues, setEditFormValues] = useState({ ...addFormValues });
-    
+
     const [editMode, setEditMode] = useState(false);
     const [editIndex, setEditIndex] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -99,11 +99,39 @@ const BasicTable = () => {
         setSearchQuery("");
     };
 
+    const validateCustomerId = async (senderId, recipientId) => {
+        try {
+            // Check if senderId exists
+            const senderResponse = await fetch(`${SERVER_URL}/api/customer?customerId=${senderId}`);
+            if (!senderResponse.ok) {
+                throw new Error(`Sender ID ${senderId} does not exist`);
+            }
+
+            // Check if recipientId exists
+            const recipientResponse = await fetch(`${SERVER_URL}/api/customer?customerId=${recipientId}`);
+            if (!recipientResponse.ok) {
+                throw new Error(`Recipient ID ${recipientId} does not exist`);
+            }
+
+            return true;  // Both IDs are valid
+        } catch (error) {
+            console.error('Validation error:', error);
+            return false;  // One or both IDs are invalid
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const Employee_ID = localStorage.getItem("Employee_ID")
-        const newPackage = { ...addFormValues, Employee_ID};
-    
+
+        const isValid = await validateCustomerId(addFormValues.senderId, addFormValues.recipientId);
+        if (!isValid) {
+            alert("Invalid Sender or Recipient ID. Please check the IDs and try again.");
+            return;  // Stop the update process if IDs are invalid
+        }
+
+        const newPackage = { ...addFormValues, Employee_ID };
+
         try {
             const response = await fetch(`${SERVER_URL}/api/PackagePortal`, {
                 method: 'POST',
@@ -111,10 +139,10 @@ const BasicTable = () => {
                 body: JSON.stringify(newPackage),
             });
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            
+
             // Optionally fetch the updated list of packages
             await fetchPackage(); // Fetch the updated data after adding a package
-    
+
             // Clear the add form values
             setAddFormValues({
                 senderId: "",
@@ -162,13 +190,19 @@ const BasicTable = () => {
         });
 
         // Clear add form values when entering edit mode
-        setAddFormValues({ 
-            senderId: "", recipientId: "", houseNumber: "", street: "", suffix: "", city: "", state: "", zipCode: "", country: "", length: "", width: "", height: "", weight: "", shippingMethod: "Ground", packageStatus: "Received" 
+        setAddFormValues({
+            senderId: "", recipientId: "", houseNumber: "", street: "", suffix: "", city: "", state: "", zipCode: "", country: "", length: "", width: "", height: "", weight: "", shippingMethod: "Ground", packageStatus: "Received"
         });
     };
 
     const handleUpdate = async (e) => {
         e.preventDefault();
+
+        const isValid = await validateCustomerId(editFormValues.senderId, editFormValues.recipientId);
+        if (!isValid) {
+            alert("Invalid Sender or Recipient ID. Please check the IDs and try again.");
+            return;  // Stop the update process if IDs are invalid
+        }
         const updatedPackage = { ...editFormValues, package_id: filteredData[editIndex].package_id };
 
         try {
@@ -246,55 +280,55 @@ const BasicTable = () => {
                 <option value="recipient_name">Recipient Name</option>
                 <option value="destination_address">Destination Address</option>
             </select>
-            <input 
-                type="text" 
-                placeholder={`Search by ${searchColumn.replace('_', ' ')}`} 
-                value={searchQuery} 
-                onChange={handleSearchChange} 
+            <input
+                type="text"
+                placeholder={`Search by ${searchColumn.replace('_', ' ')}`}
+                value={searchQuery}
+                onChange={handleSearchChange}
             />
 
             <h2>Current Packages - Click On Package ID To Edit</h2>
             <div className="table-scroll">
                 <table>
-                <thead>
-                    <tr>
-                        <th>Package ID</th>
-                        <th>Sender</th>
-                        <th>Recipient</th>
-                        <th>Destination</th>
-                        <th>Status</th>
-                        <th>(L x W x H) In</th> {/* Updated header */}
-                        <th>Weight lbs</th>
-                        <th>Shipping Method</th>
-                        <th>Shipping Cost</th>
-                        <th>Delete</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredData.map((pkg, index) => (
-                        <tr key={pkg.package_id}>
-                            <td>
-                                <button
-                                    onClick={() => handleEdit(index)}
-                                    style={{ color: 'blue', textDecoration: 'underline', background: 'none', border: 'none', padding: 0 }}
-                                >
-                                    {pkg.package_id}
-                                </button>
-                            </td>
-                            <td>{pkg.sender_name}</td>
-                            <td>{pkg.recipient_name}</td>
-                            <td>{pkg.destination_address}</td>
-                            <td>{pkg.package_status}</td>
-                            <td>{`${pkg.length} x ${pkg.width} x ${pkg.height}`}</td> {/* Combined dimensions for display */}
-                            <td>{pkg.weight}</td>
-                            <td>{pkg.shipping_method}</td>
-                            <td>{pkg.shipping_cost}</td>
-                            <td>
-                                <button onClick={() => handleDelete(pkg.package_id)}>Delete</button>
-                            </td>
+                    <thead>
+                        <tr>
+                            <th>Package ID</th>
+                            <th>Sender</th>
+                            <th>Recipient</th>
+                            <th>Destination</th>
+                            <th>Status</th>
+                            <th>(L x W x H) In</th> {/* Updated header */}
+                            <th>Weight lbs</th>
+                            <th>Shipping Method</th>
+                            <th>Shipping Cost</th>
+                            <th>Delete</th>
                         </tr>
-                    ))}
-                </tbody>
+                    </thead>
+                    <tbody>
+                        {filteredData.map((pkg, index) => (
+                            <tr key={pkg.package_id}>
+                                <td>
+                                    <button
+                                        onClick={() => handleEdit(index)}
+                                        style={{ color: 'blue', textDecoration: 'underline', background: 'none', border: 'none', padding: 0 }}
+                                    >
+                                        {pkg.package_id}
+                                    </button>
+                                </td>
+                                <td>{pkg.sender_name}</td>
+                                <td>{pkg.recipient_name}</td>
+                                <td>{pkg.destination_address}</td>
+                                <td>{pkg.package_status}</td>
+                                <td>{`${pkg.length} x ${pkg.width} x ${pkg.height}`}</td> {/* Combined dimensions for display */}
+                                <td>{pkg.weight}</td>
+                                <td>{pkg.shipping_method}</td>
+                                <td>{pkg.shipping_cost}</td>
+                                <td>
+                                    <button onClick={() => handleDelete(pkg.package_id)}>Delete</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
                 </table>
             </div>
 
@@ -333,7 +367,6 @@ const BasicTable = () => {
                     </form>
                 </div>
             )}
-
             <Modal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

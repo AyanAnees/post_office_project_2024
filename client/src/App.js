@@ -1,4 +1,4 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Route, BrowserRouter as Router, Routes, Navigate } from "react-router-dom";
 import { createContext, useContext, useEffect, useState } from "react";
 import AboutUs from "./components/AboutUs/AboutUs";
 import AddDepartment from "./components/AddDepartment/AddDepartment";
@@ -35,7 +35,7 @@ const getLinksForRole = (role) => {
         ["Dashboard", "Dashboard"],
         ["TrackingHistory", "Tracking History"],
         ["Shop", "Shop"],
-        ["Notifications", "Notifications"], // Add Notifications tab
+        ["Notifications", "Notifications"],
         ["AboutUs", "About"],
         ["Contactus", "Contact Us"],
         ["CustomerProfile", "Profile"],
@@ -45,10 +45,10 @@ const getLinksForRole = (role) => {
         ["", "Home"],
         ["PackagePortal", "Package Portal"],
         ["TrackingHistory", "Tracking History"],
-        ["Notifications", "Notifications"], // Add Notifications tab
-        ["EmployeeProfile", "Profile"],
+        ["Notifications", "Notifications"],
         ["EmployeeShop", "Shop"],
         ["Reports", "Reports"],
+        ["EmployeeProfile", "Profile"],
       ];
     case "manager":
       return [
@@ -56,23 +56,23 @@ const getLinksForRole = (role) => {
         ["PackagePortal", "Package Portal"],
         ["TrackingHistory", "Tracking History"],
         ["ManagerPortal", "Manager Portal"],
-        ["Notifications", "Notifications"], // Add Notifications tab
-        ["EmployeeProfile", "Profile"],
+        ["Notifications", "Notifications"],
         ["EmployeeShop", "Shop"],
         ["Reports", "Reports"],
+        ["EmployeeProfile", "Profile"],
       ];
     case "Admin":
       return [
         ["", "Home"],
         ["PackagePortal", "Package Portal"],
         ["TrackingHistory", "Tracking History"],
-        ["Notifications", "Notifications"], // Add Notifications tab
+        ["Notifications", "Notifications"],
         ["Reports", "Reports"],
         ["ManagerPortal", "Manager Portal"],
         ["AddDepartment", "Add Department"],
         ["AddLocation", "Add Location"],
-        ["EmployeeProfile", "Profile"],
         ["EmployeeShop", "Shop"],
+        ["EmployeeProfile", "Profile"],
       ];
     default:
       return [
@@ -83,6 +83,17 @@ const getLinksForRole = (role) => {
         ["Login", "Login/Register"],
       ];
   }
+};
+
+// Component for role-based protected routes
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { role } = useContext(RoleContext);
+
+  if (!allowedRoles.includes(role)) {
+    return <Navigate to="/Login" replace />;
+  }
+
+  return children;
 };
 
 const App = () => {
@@ -104,21 +115,73 @@ const App = () => {
           <Route path="/Login" element={<Login />} />
           <Route path="/SignUp" element={<SignUp />} />
           <Route path="/Shop" element={<Shop />} />
-          <Route path="/PackagePortal" element={<PackagePortal />} />
+          <Route path="/PackagePortal" element={
+            <ProtectedRoute allowedRoles={["employee", "manager", "Admin"]}>
+              <PackagePortal />
+            </ProtectedRoute>
+          } />
           <Route path="/AboutUs" element={<AboutUs />} />
-          <Route path="/TrackingHistory" element={<TrackingHistory />} />
-          <Route path="/CustomerProfile" element={<CustomerProfile />} />
-          <Route path="/EmployeeProfile" element={<EmployeeProfile />} />
-          <Route path="/ManagerPortal" element={<ManagerPortal />} />
-          <Route path="/Dashboard" element={<Dashboard />} />
-          <Route path="/Reports" element={<Reports />} />
-          <Route path="/AddDepartment" element={<AddDepartment />} />
-          <Route path="/AddLocation" element={<AddLocation />} />
-          <Route path="/EmployeeShop" element={<EmployeeShop />} />
-          <Route path="/stops/:packageId" element={<Stops />} />
+          <Route path="/TrackingHistory" element={
+            <ProtectedRoute allowedRoles={["customer", "employee", "manager", "Admin"]}>
+              <TrackingHistory />
+            </ProtectedRoute>
+          } />
+          <Route path="/CustomerProfile" element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/EmployeeProfile" element={
+            <ProtectedRoute allowedRoles={["employee", "manager", "Admin"]}>
+              <EmployeeProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/ManagerPortal" element={
+            <ProtectedRoute allowedRoles={["manager", "Admin"]}>
+              <ManagerPortal />
+            </ProtectedRoute>
+          } />
+          <Route path="/Dashboard" element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/Reports" element={
+            <ProtectedRoute allowedRoles={["employee", "manager", "Admin"]}>
+              <Reports />
+            </ProtectedRoute>
+          } />
+          <Route path="/AddDepartment" element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <AddDepartment />
+            </ProtectedRoute>
+          } />
+          <Route path="/AddLocation" element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <AddLocation />
+            </ProtectedRoute>
+          } />
+          <Route path="/EmployeeShop" element={
+            <ProtectedRoute allowedRoles={["employee", "manager", "Admin"]}>
+              <EmployeeShop />
+            </ProtectedRoute>
+          } />
+          <Route path="/stops/:packageId" element={
+            <ProtectedRoute allowedRoles={["employee", "manager", "Admin"]}>
+              <Stops />
+            </ProtectedRoute>
+          } />
           <Route path="/ContactUS" element={<Contact />} />
-          <Route path="/CustomerSearch" element={<CustomerSearch />} />
-          <Route path="/Notifications" element={<Notifications />} /> {/* Add Notifications route */}
+          <Route path="/CustomerSearch" element={
+            <ProtectedRoute allowedRoles={["Admin"]}>
+              <CustomerSearch />
+            </ProtectedRoute>
+          } />
+          <Route path="/Notifications" element={
+            <ProtectedRoute allowedRoles={["customer", "employee", "manager", "Admin"]}>
+              <Notifications />
+            </ProtectedRoute>
+          } />
         </Routes>
       </Router>
     </RoleContext.Provider>
