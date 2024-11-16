@@ -47,7 +47,7 @@ module.exports = function packagesRoute(req, res) {
     JOIN customer AS cs ON p.Sender_ID = cs.Customer_ID
     JOIN customer AS cr ON p.Recipient_ID = cr.Customer_ID
     WHERE (p.Sender_ID = ? OR p.Recipient_ID = ?)
-        AND (p.Package_Status != 'Delivered' OR p.Package_Status IS NULL)
+        AND (p.Package_Status IS NOT NULL AND p.Delete_Package = FALSE)
     ORDER BY p.Package_Status DESC, s.Stop_Arrival_Date DESC;
   `;
 

@@ -75,84 +75,92 @@ const PackagePortalRoute = (req, res) => {
                         res.writeHead(400, { 'Content-Type': 'application/json' });
                         return res.end(JSON.stringify({ message: 'All fields are required' }));
                     }
-
+        
                     try {
                         const {
                             senderId, recipientId, houseNumber, street, suffix,
                             city, state, zipCode, country, packageStatus,
-                            length, width, height, weight, shippingMethod, employeeId
+                            length, width, height, weight, shippingMethod, Employee_ID
                         } = body;
-
+        
                         // Start transaction
                         const connection = await db.getConnection();
                         await connection.beginTransaction();
-
+        
                         try {
+                            const cost = CalCost(length,width,height,weight,shippingMethod)
                             // Step 1: Insert the package
                             const insertPackageQuery = `
-                                    INSERT INTO package (
-                                        Sender_ID, Recipient_ID, Package_House_Number, Package_Street, 
-                                        Package_Suffix, Package_City, Package_State, Package_Zip_Code, 
-                                        Package_Country, Package_Status, Package_Length, Package_Width, 
-                                        Package_Height, Package_Weight, Package_Shipping_Method
-                                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-                                `;
+                                INSERT INTO package (
+                                    Sender_ID, Recipient_ID, Package_House_Number, Package_Street, 
+                                    Package_Suffix, Package_City, Package_State, Package_Zip_Code, 
+                                    Package_Country, Package_Status, Package_Length, Package_Width, 
+                                    Package_Height, Package_Weight, Package_Shipping_Method, Package_Shipping_Cost
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                            `;
                             const [packageResult] = await connection.query(insertPackageQuery, [
                                 senderId, recipientId, houseNumber, street, suffix,
                                 city, state, zipCode, country, packageStatus,
-                                length, width, height, weight, shippingMethod
+                                length, width, height, weight, shippingMethod, cost
                             ]);
-
+        
                             const packageId = packageResult.insertId;
-
+        
                             // Step 2: Insert into tracking_history
                             const insertTrackingQuery = `
-                                    INSERT INTO tracking_history (
-                                        Package_ID, Arrival_Date, Package_Status, Recipient_ID
-                                    ) VALUES (?, NOW(), ?, ?);
-                                `;
+                                INSERT INTO tracking_history (
+                                    Package_ID, Arrival_Date, Package_Status, Recipient_ID
+                                ) VALUES (?, NOW(), ?, ?);
+                            `;
                             await connection.query(insertTrackingQuery, [packageId, packageStatus, recipientId]);
-
+        
                             // Step 3: Find the employee's department location
                             const findLocationQuery = `
-                                    SELECT d.Department_Location_ID
-                                    FROM employee AS e
-                                    JOIN departments AS d ON e.Employee_Department_ID = d.Department_ID
-                                    WHERE e.Employee_ID = ? AND e.Delete_Employee = FALSE;
-                                `;
-                            const [locationRows] = await connection.query(findLocationQuery, [employeeId]);
-
+                                SELECT d.Department_Location_ID
+                                FROM employee AS e
+                                JOIN departments AS d ON e.Employee_Department_ID = d.Department_ID
+                                WHERE e.Employee_ID = ? AND e.Delete_Employee = FALSE;
+                            `;
+                            const [locationRows] = await connection.query(findLocationQuery, [Employee_ID]);
+        
+                            // Check if locationRows is not empty
                             if (locationRows.length === 0) {
-                                throw new Error('Invalid Employee ID or Employee not found.');
+                                res.writeHead(404, { 'Content-Type': 'application/json' });
+                                return res.end(JSON.stringify({ error: 'Employee not found or employee is deleted.' }));
                             }
-
+        
+                            // Extract the Department_Location_ID
                             const stopLocation = locationRows[0].Department_Location_ID;
-
+        
                             // Step 4: Insert into stop
                             const insertStopQuery = `
-                                    INSERT INTO stop (
-                                        Package_ID, Stop_Location, Stop_Arrival_Date
-                                    ) VALUES (?, ?, NOW());
-                                `;
+                                INSERT INTO stop (
+                                    Stop_Package_ID, Stop_Location, Stop_Arrival_Date, Stop_Departure_Date, Delete_Stop
+                                ) VALUES (?, ?, NOW(), NULL, FALSE);
+                            `;
                             await connection.query(insertStopQuery, [packageId, stopLocation]);
-
+        
                             // Commit transaction
                             await connection.commit();
-                            res.status(201).json({ message: 'Package added successfully.', packageId });
+                            res.writeHead(201, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ message: 'Package added successfully.', packageId }));
                         } catch (err) {
                             // Rollback transaction in case of error
                             await connection.rollback();
-                            throw err;
+                            console.error(err);
+                            res.writeHead(500, { 'Content-Type': 'application/json' });
+                            res.end(JSON.stringify({ error: 'An error occurred while adding the package.' }));
                         } finally {
                             connection.release();
                         }
                     } catch (err) {
                         console.error(err);
-                        res.status(500).json({ error: 'An error occurred while adding the package.' });
+                        res.writeHead(500, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify({ error: 'An error occurred while adding the package.' }));
                     }
                 });
             }
-            break;
+            break;        
 
         // Handle PUT request to update an existing package
         case 'PUT':

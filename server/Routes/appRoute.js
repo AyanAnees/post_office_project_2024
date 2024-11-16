@@ -9,6 +9,7 @@ const handleCustomerShopRoutes = require("./ShopRoute");//customer shop
 const handleReportsRoute = require("./ReportsRoute");//reports
 const handleDepartmentRoute = require("./AddDepartmentRoute");
 const handleEmployeeRoutes = require("./EmployeeProfileRoute");
+const handleStopRoutes = require("./StopRoute");
 const handlePackagesRoute = require("./PackageRoute");
 const handleManagerPortalRoutes = require("./ManagerPortalRoute");
 const handleNotificationsRoutes = require('./NotificationsRoute');
