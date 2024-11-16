@@ -100,7 +100,6 @@ const CustomerProfileRoute = (req, res) => {
         Customer_Address_State,
         Customer_Address_Zip_Code,
         Customer_Address_Country,
-        Customer_Balance,
       } = body;
 
       const updateQuery = `
@@ -116,8 +115,7 @@ const CustomerProfileRoute = (req, res) => {
             Customer_Address_City = ?, 
             Customer_Address_State = ?, 
             Customer_Address_Zip_Code = ?, 
-            Customer_Address_Country = ?, 
-            Customer_Balance = ?
+            Customer_Address_Country = ?
         WHERE Customer_ID = ?;
       `;
       //const avatarPath = AvatarName ? `assets/${AvatarName}` : null;
@@ -137,7 +135,6 @@ const CustomerProfileRoute = (req, res) => {
           Customer_Address_State,
           Customer_Address_Zip_Code,
           Customer_Address_Country,
-          Customer_Balance,
           Customer_ID,
         ]);
 

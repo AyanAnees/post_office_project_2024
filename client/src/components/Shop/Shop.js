@@ -4,7 +4,7 @@ import { SERVER_URL } from "../../App";
 
 function Shop() {
   const [products, setProducts] = useState([]);
-  const [balance, setBalance] = useState(null);
+
   const [productQuantities, setProductQuantities] = useState({});
   const [totalQuantity, setTotalQuantity] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -25,10 +25,6 @@ function Shop() {
         });
         setProductQuantities(initialQuantities);
 
-        // get balance
-        const balanceResponse = await fetch(`${SERVER_URL}/api/customer/balance?customerID=${customerID}`);
-        const balanceData = await balanceResponse.json();
-        setBalance(balanceData.balance);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
@@ -88,7 +84,7 @@ function Shop() {
         clearCart={clearCart}
         handleQuantityChange={handleQuantityChange}
         customerID={customerID}
-        balance={balance}
+
       />
     </div>
   );
@@ -114,7 +110,7 @@ const ProductList = ({ products, addToCart }) => {
 };
 
 
-const Cart = ({ products, productQuantities, totalQuantity, totalAmount, clearCart, handleQuantityChange, customerID, balance }) => {
+const Cart = ({ products, productQuantities, totalQuantity, totalAmount, clearCart, handleQuantityChange, customerID }) => {
   const handleCheckout = async () => {
     //check shoping cart empty or not
     const cart = products
@@ -126,12 +122,6 @@ const Cart = ({ products, productQuantities, totalQuantity, totalAmount, clearCa
   
     if (cart.length === 0) {
       alert("Your cart is empty.");
-      return;
-    }
-  
-    // check balance
-    if (totalAmount > balance) {
-      alert("Insufficient balance to complete the purchase.");
       return;
     }
   

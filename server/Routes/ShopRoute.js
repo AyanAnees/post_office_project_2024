@@ -8,8 +8,8 @@ const customerShopRoute = (req, res) => {
     switch (req.method) {
         // Handle GET request to retrieve all products
         case 'GET':
-            // Route for get balance
-            if (parsedUrl.pathname === '/api/customer/balance') {
+            
+            if (parsedUrl.pathname === '/api/customer/shop') {
                 const customerID = parsedUrl.query.customerID;
 
                 if (!customerID) {
@@ -18,23 +18,7 @@ const customerShopRoute = (req, res) => {
                     return;
                 }
 
-                // Query balance
-                const query = 'SELECT Customer_Balance FROM customer WHERE Customer_ID = ?';
-                db.query(query, [customerID])
-                    .then(([results]) => {
-                        if (results.length > 0) {
-                            res.writeHead(200, { 'Content-Type': 'application/json' });
-                            res.end(JSON.stringify({ balance: results[0].Customer_Balance }));
-                        } else {
-                            res.writeHead(404, { 'Content-Type': 'application/json' });
-                            res.end(JSON.stringify({ message: 'Customer not found' }));
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching balance:', error);
-                        res.writeHead(500, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify({ message: 'Internal Server Error' }));
-                    });
+
             } else if (parsedUrl.pathname === '/api/shop') {
                 const query = 'SELECT * FROM products WHERE Delete_Product != 1';
                 db.query(query)
@@ -76,7 +60,8 @@ const customerShopRoute = (req, res) => {
                     }
 
                     try {
-                        const transactionDate = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                        const transactionDate = new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
+
 
 
                         for (const item of cart) {
@@ -106,11 +91,6 @@ const customerShopRoute = (req, res) => {
                             );
                         }
 
-                        // Update balance
-                        await db.query(
-                            'UPDATE customer SET Customer_Balance = Customer_Balance - ? WHERE Customer_ID = ?',
-                            [totalAmount, customerID]
-                        );
 
                         res.writeHead(201, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify({ message: 'Payment success' }));

@@ -161,9 +161,6 @@ const CustomerProfile = () => {
                   customerInfo.Customer_Address_Zip_Code
                 }, ${customerInfo.Customer_Address_Country}`}
               </p>
-              <p className="C_Information">
-                <strong>Balance:</strong> ${customerInfo.Customer_Balance}
-              </p>
               <button onClick={handleEdit} className="button">
                 Edit
               </button>
