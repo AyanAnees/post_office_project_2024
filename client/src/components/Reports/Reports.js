@@ -196,7 +196,7 @@ const calculateTotals = () => {
                         ))}
                         {totals && (
                         <tr className="totals-row">
-                            <td><strong>Totals:</strong></td>
+                            <td><strong>Total</strong></td>
                             <td><strong>{totals.stock}</strong></td>
                             <td></td>
                             <td><strong>{totals.unitPrice}</strong></td>
@@ -244,7 +244,8 @@ const calculateTotals = () => {
                         ))}
                         {totals && (
                         <tr className="totals-row">
-                            <td><strong>Totals:</strong></td>
+                            <td><strong>Total</strong></td>
+                            <td></td>
                             <td></td>
                             <td></td>
                             <td><strong>{totals.shipping}</strong></td>
@@ -304,7 +305,7 @@ const calculateTotals = () => {
                         })}
                         {totals && (
                         <tr className="totals-row">
-                            <td><strong>Totals:</strong></td>
+                            <td><strong>Total</strong></td>
                             <td><strong>{totals.amount}</strong></td>
                             <td></td>
                             <td></td>
