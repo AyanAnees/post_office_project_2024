@@ -1,12 +1,14 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { RoleContext } from "../../App"; // Import the context
 import "./EmployeeProfile.css";
 
 import { SERVER_URL } from "../../App";
 
 const EmployeeProfile = () => {
   const navigate = useNavigate();
+  const { setRole } = useContext(RoleContext);
   const [employeeInfo, setEmployeeInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -58,6 +60,7 @@ const EmployeeProfile = () => {
   const handleEdit = () => setEditMode(true);
   const handleLogout = () => {
     localStorage.clear();
+    setRole(""); 
     navigate("/login");
   };
 

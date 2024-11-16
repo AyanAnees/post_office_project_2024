@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CustomerProfile.css";
 import { SERVER_URL } from "../../App";
-
+import { RoleContext } from "../../App";
 const CustomerProfile = () => {
   const navigate = useNavigate();
+  const { setRole } = useContext(RoleContext);
   const [customerInfo, setCustomerInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -48,8 +49,9 @@ const CustomerProfile = () => {
   const handleEdit = () => setEditMode(true);
   const handleLogout = () => {
     localStorage.clear();
+    setRole(""); // Clear role in global context
     navigate("/login");
-  };
+  }
 
   //const handleFileChange = (e) => {
     //const file = e.target.files[0];

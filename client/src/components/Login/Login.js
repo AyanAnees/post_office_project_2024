@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { RoleContext } from "../../App"; // Import the context
 import "./Login.css";
 import { SERVER_URL } from "../../App";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { setRole } = useContext(RoleContext);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -48,25 +50,29 @@ const Login = () => {
         // Set role and related information in localStorage
         if (result["Customer_Email_Address"]) {
           localStorage.setItem("role", "customer");
+          setRole("customer");
           localStorage.setItem("Customer_ID", result.Customer_ID);
           localStorage.setItem(
             "Customer_Email_Address",
             result.Customer_Email_Address
           );
-          navigate("/CustomerProfile");
+          navigate("/Dashboard");
         } else if (result["Role"] === "manager") {
           localStorage.setItem("role", "manager");
+          setRole("manager");
           localStorage.setItem("Employee_ID", result.Employee_ID);
           localStorage.setItem("Employee_Email", result.Email);
           localStorage.setItem("Manager_Department_ID", result.department_id);
           navigate("/ManagerPortal");
         } else if (result["Role"] === "Admin") {
           localStorage.setItem("role", "Admin");
+          setRole("Admin");
           localStorage.setItem("Employee_ID", result.Employee_ID);
           localStorage.setItem("Employee_Email", result.Email);
           navigate("/EmployeeProfile");
         } else {
           localStorage.setItem("role", "employee");
+          setRole("employee");
           localStorage.setItem("Employee_ID", result.Employee_ID);
           localStorage.setItem("Employee_Email", result.Email);
           navigate("/EmployeeProfile");

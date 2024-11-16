@@ -1,5 +1,5 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import AboutUs from "./components/AboutUs/AboutUs";
 import AddDepartment from "./components/AddDepartment/AddDepartment";
 import AddLocation from "./components/AddLocation/AddLocation";
@@ -23,6 +23,8 @@ import Notifications from "./components/Notifications/Notifications"; // Import 
 
 const SERVER_URL = process.env.REACT_APP_SERVER_URL || "http://localhost:3001";
 export { SERVER_URL };
+
+export const RoleContext = createContext();
 
 // Function to determine navigation links based on user role
 const getLinksForRole = (role) => {
@@ -86,7 +88,6 @@ const getLinksForRole = (role) => {
 const App = () => {
   const [role, setRole] = useState(localStorage.getItem("role") || "");
 
-  // Update role dynamically when localStorage changes
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
     setRole(storedRole || "");
@@ -95,30 +96,32 @@ const App = () => {
   const links = getLinksForRole(role);
 
   return (
-    <Router>
-      <Navbar links={links} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/Login" element={<Login />} />
-        <Route path="/SignUp" element={<SignUp />} />
-        <Route path="/Shop" element={<Shop />} />
-        <Route path="/PackagePortal" element={<PackagePortal />} />
-        <Route path="/AboutUs" element={<AboutUs />} />
-        <Route path="/TrackingHistory" element={<TrackingHistory />} />
-        <Route path="/CustomerProfile" element={<CustomerProfile />} />
-        <Route path="/EmployeeProfile" element={<EmployeeProfile />} />
-        <Route path="/ManagerPortal" element={<ManagerPortal />} />
-        <Route path="/Dashboard" element={<Dashboard />} />
-        <Route path="/Reports" element={<Reports />} />
-        <Route path="/AddDepartment" element={<AddDepartment />} />
-        <Route path="/AddLocation" element={<AddLocation />} />
-        <Route path="/EmployeeShop" element={<EmployeeShop />} />
-        <Route path="/stops/:packageId" element={<Stops />} />
-        <Route path="/ContactUS" element={<Contact />} />
-        <Route path="/CustomerSearch" element={<CustomerSearch />} />
-        <Route path="/Notifications" element={<Notifications />} /> {/* Add Notifications route */}
-      </Routes>
-    </Router>
+    <RoleContext.Provider value={{ role, setRole }}>
+      <Router>
+        <Navbar links={links} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/Login" element={<Login />} />
+          <Route path="/SignUp" element={<SignUp />} />
+          <Route path="/Shop" element={<Shop />} />
+          <Route path="/PackagePortal" element={<PackagePortal />} />
+          <Route path="/AboutUs" element={<AboutUs />} />
+          <Route path="/TrackingHistory" element={<TrackingHistory />} />
+          <Route path="/CustomerProfile" element={<CustomerProfile />} />
+          <Route path="/EmployeeProfile" element={<EmployeeProfile />} />
+          <Route path="/ManagerPortal" element={<ManagerPortal />} />
+          <Route path="/Dashboard" element={<Dashboard />} />
+          <Route path="/Reports" element={<Reports />} />
+          <Route path="/AddDepartment" element={<AddDepartment />} />
+          <Route path="/AddLocation" element={<AddLocation />} />
+          <Route path="/EmployeeShop" element={<EmployeeShop />} />
+          <Route path="/stops/:packageId" element={<Stops />} />
+          <Route path="/ContactUS" element={<Contact />} />
+          <Route path="/CustomerSearch" element={<CustomerSearch />} />
+          <Route path="/Notifications" element={<Notifications />} /> {/* Add Notifications route */}
+        </Routes>
+      </Router>
+    </RoleContext.Provider>
   );
 };
 
