@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import './Reports.css';
-import './FinancialTransactionsReport.js';
-import './InventoryReport.js'
 
 import { SERVER_URL } from "../../App";
 
@@ -130,9 +128,38 @@ const Reports = () => {
         }
         return [];
     };
+////////////////////////
+const calculateTotals = () => {
+    if (!data || data.length === 0) return null;
 
+    let totals = {};
+
+    if (formData.reportType === 'inventory') {
+        totals = {
+            stock: data.reduce((sum, item) => sum + parseFloat(item.stock || 0), 0),
+            unitPrice: `$${data.reduce((sum, item) => sum + parseFloat((item.unitPrice || '').replace('$', '') || 0), 0).toFixed(2)}`,
+            itemsSold: data.reduce((sum, item) => sum + parseInt(item.itemsSold || 0, 10), 0),
+        };
+    } else if (formData.reportType === 'package-delivery') {
+        totals = {
+            shipping: `$${data.reduce((sum, item) => sum + parseFloat((item.shipping || '').replace('$', '') || 0), 0).toFixed(2)}`,
+            weight: `${data.reduce((sum, item) => sum + parseFloat((item.weight || '').replace(' lbs', '') || 0), 0).toFixed(2)} lbs`,
+        };
+    } else if (formData.reportType === 'financial-transactions') {
+        totals = {
+            amount: `$${data.reduce((sum, item) => sum + parseFloat((item.amount || '').replace('$', '') || 0), 0).toFixed(2)}`,
+            quantity: data.reduce((sum, item) => sum + parseInt(item.quantity || 0, 10), 0),
+        };
+    }
+
+    return totals;
+};
+    
+///////////////////////////
     const renderTable = () => {
         if (!data || data.length === 0) return <p>No data available.</p>;
+
+        const totals = calculateTotals();
      
         // Decide which table to render based on report type
         if (formData.reportType === 'inventory') {
@@ -167,6 +194,15 @@ const Reports = () => {
                                 <td>{item.itemsSold}</td>
                             </tr>
                         ))}
+                        {totals && (
+                        <tr className="totals-row">
+                            <td><strong>Total</strong></td>
+                            <td><strong>{totals.stock}</strong></td>
+                            <td></td>
+                            <td><strong>{totals.unitPrice}</strong></td>
+                            <td><strong>{totals.itemsSold}</strong></td>
+                        </tr>
+                    )}
                     </tbody>
                 </table>         
             );
@@ -206,6 +242,16 @@ const Reports = () => {
                                 <td>{item.weight}</td>
                             </tr>
                         ))}
+                        {totals && (
+                        <tr className="totals-row">
+                            <td><strong>Total</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>{totals.shipping}</strong></td>
+                            <td><strong>{totals.weight}</strong></td>
+                        </tr>
+                    )}
                     </tbody>
                 </table>
              
@@ -257,6 +303,15 @@ const Reports = () => {
                                 </tr>
                             );
                         })}
+                        {totals && (
+                        <tr className="totals-row">
+                            <td><strong>Total</strong></td>
+                            <td><strong>{totals.amount}</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>{totals.quantity}</strong></td>
+                        </tr>
+                    )}
                     </tbody>
                 </table>
             );
@@ -358,7 +413,6 @@ const Reports = () => {
                                     <option value="delivered">Delivered</option>
                                     <option value="in transit">In Transit</option>
                                     <option value="received">Received</option>
-                                    <option value="returned">Returned</option>
                                 </select>
                             </div>
 
@@ -373,8 +427,7 @@ const Reports = () => {
                                     <option value="">Select Method</option>
                                     <option value="ground">Ground</option>
                                     <option value="express">Express</option>
-                                    <option value="overnight">Overnight</option>
-                                    <option value="pickup">Pickup</option>
+                                    <option value="air">Air</option>
                                 </select>
                             </div>
                         </>
