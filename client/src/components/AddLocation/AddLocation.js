@@ -192,7 +192,10 @@ const BasicTable = () => {
                         key={key}
                         type="text"
                         name={key}
-                        placeholder={key.replace(/([A-Z])/g, " $1")} // Format name for placeholder
+                        placeholder={key
+                            .replace(/([A-Z])/g, " $1") // Insert a space before capital letters
+                            .replace(/^./, (str) => str.toUpperCase()) // Capitalize the first letter
+                        }
                         value={locationFields[key]}
                         onChange={handleInputChange}
                         required={key !== "suffix"} // Make 'suffix' optional
@@ -200,6 +203,7 @@ const BasicTable = () => {
                 ))}
                 <button type="submit">Add Location</button>
             </form>
+
 
             <h2>Search Locations</h2>
             <input
@@ -265,7 +269,7 @@ const BasicTable = () => {
                                 key={key}
                                 type="text"
                                 name={key}
-                                placeholder={key.replace(/([A-Z])/g, " ")}
+                                placeholder={key.replace(/([A-Z])/g, " ").replace(/^./, (str) => str.toUpperCase()) }
                                 value={editFields[key]}
                                 onChange={(e) =>
                                     setEditFields((prev) => ({ ...prev, [key]: e.target.value }))
@@ -282,8 +286,8 @@ const BasicTable = () => {
             )}
             <Modal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)} 
-                onConfirm={confirmDelete} 
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={confirmDelete}
             />
         </div>
     );

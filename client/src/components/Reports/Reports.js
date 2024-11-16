@@ -139,21 +139,24 @@ const calculateTotals = () => {
             stock: data.reduce((sum, item) => sum + parseFloat(item.stock || 0), 0),
             unitPrice: `$${data.reduce((sum, item) => sum + parseFloat((item.unitPrice || '').replace('$', '') || 0), 0).toFixed(2)}`,
             itemsSold: data.reduce((sum, item) => sum + parseInt(item.itemsSold || 0, 10), 0),
+            totalRevenue: `$${data.reduce((sum, item) => 
+                sum + (parseFloat((item.unitPrice || '').replace('$', '') || 0) * parseInt(item.itemsSold || 0, 10)), 0).toFixed(2)}`
         };
     } else if (formData.reportType === 'package-delivery') {
         totals = {
             shipping: `$${data.reduce((sum, item) => sum + parseFloat((item.shipping || '').replace('$', '') || 0), 0).toFixed(2)}`,
-            weight: `${data.reduce((sum, item) => sum + parseFloat((item.weight || '').replace(' lbs', '') || 0), 0).toFixed(2)} lbs`,
+            weight: `${data.reduce((sum, item) => sum + parseFloat((item.weight || '').replace(' lbs', '') || 0), 0).toFixed(2)} lbs`
         };
     } else if (formData.reportType === 'financial-transactions') {
         totals = {
             amount: `$${data.reduce((sum, item) => sum + parseFloat((item.amount || '').replace('$', '') || 0), 0).toFixed(2)}`,
-            quantity: data.reduce((sum, item) => sum + parseInt(item.quantity || 0, 10), 0),
+            quantity: data.reduce((sum, item) => sum + parseInt(item.quantity || 0, 10), 0)
         };
     }
 
     return totals;
 };
+
     
 ///////////////////////////
     const renderTable = () => {
@@ -167,46 +170,40 @@ const calculateTotals = () => {
                 <table className="report-table">
                     <thead>
                         <tr>
-                            <th onClick={() => handleSort('productName')}>
-                                Product Name {sortField === 'productName' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
-                            </th>
-                            <th onClick={() => handleSort('stock')}>
-                                Stock {sortField === 'stock' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
-                            </th>
-                            <th onClick={() => handleSort('restockDate')}>
-                                Last Restock Date {sortField === 'restockDate' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
-                            </th>
-                            <th onClick={() => handleSort('unitPrice')}>
-                                Unit Price {sortField === 'unitPrice' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
-                            </th>
-                            <th onClick={() => handleSort('itemsSold')}>
-                                Units Sold {sortField === 'itemsSold' ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
-                            </th>
+                            <th onClick={() => handleSort('productName')}> Product Name {sortField === 'productName' ? (sortDirection === 'asc' ? '↑' : '↓') : ''} </th>
+                            <th onClick={() => handleSort('stock')}> Stock {sortField === 'stock' ? (sortDirection === 'asc' ? '↑' : '↓') : ''} </th>
+                            <th onClick={() => handleSort('restockDate')}> Last Restock Date {sortField === 'restockDate' ? (sortDirection === 'asc' ? '↑' : '↓') : ''} </th>
+                            <th onClick={() => handleSort('unitPrice')}> Unit Price {sortField === 'unitPrice' ? (sortDirection === 'asc' ? '↑' : '↓') : ''} </th>
+                            <th onClick={() => handleSort('itemsSold')}> Units Sold {sortField === 'itemsSold' ? (sortDirection === 'asc' ? '↑' : '↓') : ''} </th>
+                            <th>Total Revenue</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((item) => (
-                            <tr key={item.id}>
+                        {data.map((item, index) => (
+                            <tr key={index}>
                                 <td>{item.productName}</td>
-                                <td>{item.stock}</td> 
+                                <td>{item.stock}</td>
                                 <td>{item.restockDate}</td>
                                 <td>{item.unitPrice}</td>
                                 <td>{item.itemsSold}</td>
+                                <td>{`$${(parseFloat((item.unitPrice || '').replace('$', '') || 0) * parseInt(item.itemsSold || 0, 10)).toFixed(2)}`}</td>
                             </tr>
                         ))}
                         {totals && (
-                        <tr className="totals-row">
-                            <td><strong>Total</strong></td>
-                            <td><strong>{totals.stock}</strong></td>
-                            <td></td>
-                            <td><strong>{totals.unitPrice}</strong></td>
-                            <td><strong>{totals.itemsSold}</strong></td>
-                        </tr>
-                    )}
+                            <tr className="totals-row">
+                                <td><strong>Total</strong></td>
+                                <td><strong>{totals.stock}</strong></td>
+                                <td></td>
+                                <td><strong>{totals.unitPrice}</strong></td>
+                                <td><strong>{totals.itemsSold}</strong></td>
+                                <td><strong>{totals.totalRevenue}</strong></td>
+                            </tr>
+                        )}
                     </tbody>
-                </table>         
+                </table>
             );
-        } else if (formData.reportType === 'package-delivery') {
+        }
+         else if (formData.reportType === 'package-delivery') {
             return (
                 <table className="report-table">
                     <thead>

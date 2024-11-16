@@ -6,8 +6,6 @@ import { SERVER_URL } from "../../App";
 
 const AddDepartment = () => {
     const [data, setData] = useState([]);
-    const [managers, setManagers] = useState([]);
-    const [locations, setLocations] = useState([]);
     const [departmentFields, setDepartmentFields] = useState({
         departmentName: "",
         departmentManager: "",
@@ -33,32 +31,8 @@ const AddDepartment = () => {
         }
     };
 
-    const fetchManagers = async () => {
-        try {
-            const response = await fetch(`${SERVER_URL}/managers`);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            const result = await response.json();
-            setManagers(result);
-        } catch (error) {
-            console.error('Error fetching managers:', error);
-        }
-    };
-
-    const fetchLocations = async () => {
-        try {
-            const response = await fetch(`${SERVER_URL}/locations`);
-            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-            const result = await response.json();
-            setLocations(result);
-        } catch (error) {
-            console.error('Error fetching locations:', error);
-        }
-    };
-
     useEffect(() => {
         fetchDepartments();
-        fetchManagers();
-        fetchLocations();
     }, []);
 
     const handleInputChange = (e) => {

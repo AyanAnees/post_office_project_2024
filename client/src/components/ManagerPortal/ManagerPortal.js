@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Modal from '../Modal/Modal';
 import "./ManagerPortal.css";
 import { SERVER_URL } from "../../App";
@@ -22,13 +22,13 @@ const ManagerPortal = () => {
     });
 
     const [editMode, setEditMode] = useState(false);
-    const [employeeToDelete, setEmployeeToDelete] = useState(null); 
+    const [employeeToDelete, setEmployeeToDelete] = useState(null);
     const [editIndex, setEditIndex] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editEmployeeData, setEditEmployeeData] = useState({ ...employeeData });
     const managerID = localStorage.getItem("Employee_ID");
 
-    const fetchEmployees = async () => {
+    const fetchEmployees = useCallback(async () => {
         try {
             const response = await fetch(`${SERVER_URL}/api/ManagerPortal/${managerID}`);
             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
@@ -42,11 +42,11 @@ const ManagerPortal = () => {
         } catch (error) {
             console.error('Error fetching employees:', error);
         }
-    };
+    }, [managerID]);
 
     useEffect(() => {
         fetchEmployees();
-    }, []);
+    }, [fetchEmployees]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -200,52 +200,52 @@ const ManagerPortal = () => {
         <div className="table-container">
             <h2>{"Add a new Employee"}</h2>
             <form onSubmit={handleSubmit}>
-                <input 
-                    type="text" 
-                    name="firstName" 
-                    placeholder="First Name" 
-                    value={employeeData.firstName} 
-                    onChange={handleChange} 
-                    required 
+                <input
+                    type="text"
+                    name="firstName"
+                    placeholder="First Name"
+                    value={employeeData.firstName}
+                    onChange={handleChange}
+                    required
                 />
-                <input 
-                    type="text" 
-                    name="middleName" 
-                    placeholder="Middle Name (optional)" 
-                    value={employeeData.middleName} 
-                    onChange={handleChange} 
+                <input
+                    type="text"
+                    name="middleName"
+                    placeholder="Middle Name (optional)"
+                    value={employeeData.middleName}
+                    onChange={handleChange}
                 />
-                <input 
-                    type="text" 
-                    name="lastName" 
-                    placeholder="Last Name" 
-                    value={employeeData.lastName} 
-                    onChange={handleChange} 
-                    required 
+                <input
+                    type="text"
+                    name="lastName"
+                    placeholder="Last Name"
+                    value={employeeData.lastName}
+                    onChange={handleChange}
+                    required
                 />
-                <input 
-                    type="text" 
-                    name="phoneNumber" 
-                    placeholder="Phone Number" 
-                    value={employeeData.phoneNumber} 
-                    onChange={handleChange} 
-                    required 
+                <input
+                    type="text"
+                    name="phoneNumber"
+                    placeholder="Phone Number"
+                    value={employeeData.phoneNumber}
+                    onChange={handleChange}
+                    required
                 />
-                <input 
-                    type="email" 
-                    name="email" 
-                    placeholder="Email" 
-                    value={employeeData.email} 
-                    onChange={handleChange} 
-                    required 
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={employeeData.email}
+                    onChange={handleChange}
+                    required
                 />
-                <input 
-                    type="date" 
-                    name="dateOfBirth" 
-                    placeholder="Date of Birth" 
-                    value={employeeData.dateOfBirth} 
-                    onChange={handleChange} 
-                    required 
+                <input
+                    type="date"
+                    name="dateOfBirth"
+                    placeholder="Date of Birth"
+                    value={employeeData.dateOfBirth}
+                    onChange={handleChange}
+                    required
                 />
                 <button type="submit">{"Add Employee"}</button>
             </form>
@@ -258,87 +258,108 @@ const ManagerPortal = () => {
             )}
 
             <div className="table-scroll">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Employee ID</th>
-                            <th>Name</th>
-                            <th>Phone Number</th>
-                            <th>Email</th>
-                            <th className="center-header">Delete</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {employees.map((employee, index) => (
-                            <tr key={employee.Employee_ID}>
-                                <td>
-                                    <button onClick={() => handleEdit(index)} style={{ background: 'none', border: 'none', color: 'blue', textDecoration: 'underline', cursor: 'pointer' }}>
-                                        {employee.Employee_ID}
-                                    </button>
-                                </td>
-                                <td>{`${employee.First_Name} ${employee.Middle_Name ? employee.Middle_Name + ' ' : ''}${employee.Last_Name}`}</td>
-                                <td>{formatPhoneNumber(employee.Phone_Number)}</td>
-                                <td>{employee.Email}</td>
-                                <td className="delete-column">
-                                    <button onClick={() => handleDelete(employee.Employee_ID)} style={{ color: 'red', textDecoration: 'underline', cursor: 'pointer' }}>
-                                        Delete
-                                    </button>
-                                </td>
+                {employees.length > 0 ? (
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Employee ID</th>
+                                <th>Name</th>
+                                <th>Phone Number</th>
+                                <th>Email</th>
+                                <th className="center-header">Delete</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {employees.map((employee, index) => (
+                                <tr key={employee.Employee_ID}>
+                                    <td>
+                                        <button
+                                            onClick={() => handleEdit(index)}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: 'blue',
+                                                textDecoration: 'underline',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            {employee.Employee_ID}
+                                        </button>
+                                    </td>
+                                    <td>{`${employee.First_Name} ${employee.Middle_Name ? employee.Middle_Name + ' ' : ''}${employee.Last_Name}`}</td>
+                                    <td>{formatPhoneNumber(employee.Phone_Number)}</td>
+                                    <td>{employee.Email}</td>
+                                    <td className="delete-column">
+                                        <button
+                                            onClick={() => handleDelete(employee.Employee_ID)}
+                                            style={{
+                                                color: 'red',
+                                                textDecoration: 'underline',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                ) : (
+                    <p style={{ textAlign: 'center', marginTop: '20px' }}>No employees to display</p>
+                )}
             </div>
+
 
             {editMode && (
                 <div className="edit-menu">
                     <h2>Edit Employee {editEmployeeData.Employee_ID}</h2>
                     <form onSubmit={handleUpdate}>
-                        <input 
-                            type="text" 
-                            name="firstName" 
-                            placeholder="First Name" 
-                            value={editEmployeeData.firstName} 
-                            onChange={handleEditChange} 
-                            required 
+                        <input
+                            type="text"
+                            name="firstName"
+                            placeholder="First Name"
+                            value={editEmployeeData.firstName}
+                            onChange={handleEditChange}
+                            required
                         />
-                        <input 
-                            type="text" 
-                            name="middleName" 
-                            placeholder="Middle Name (optional)" 
-                            value={editEmployeeData.middleName} 
-                            onChange={handleEditChange} 
+                        <input
+                            type="text"
+                            name="middleName"
+                            placeholder="Middle Name (optional)"
+                            value={editEmployeeData.middleName}
+                            onChange={handleEditChange}
                         />
-                        <input 
-                            type="text" 
-                            name="lastName" 
-                            placeholder="Last Name" 
-                            value={editEmployeeData.lastName} 
-                            onChange={handleEditChange} 
-                            required 
+                        <input
+                            type="text"
+                            name="lastName"
+                            placeholder="Last Name"
+                            value={editEmployeeData.lastName}
+                            onChange={handleEditChange}
+                            required
                         />
-                        <input 
-                            type="text" 
-                            name="phoneNumber" 
-                            placeholder="Phone Number" 
-                            value={editEmployeeData.phoneNumber} 
-                            onChange={handleEditChange} 
-                            required 
+                        <input
+                            type="text"
+                            name="phoneNumber"
+                            placeholder="Phone Number"
+                            value={editEmployeeData.phoneNumber}
+                            onChange={handleEditChange}
+                            required
                         />
-                        <input 
-                            type="email" 
-                            name="email" 
-                            placeholder="Email" 
-                            value={editEmployeeData.email} 
-                            onChange={handleEditChange} 
-                            required 
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Email"
+                            value={editEmployeeData.email}
+                            onChange={handleEditChange}
+                            required
                         />
-                        <input 
-                            type="date" 
-                            name="dateOfBirth" 
-                            value={editEmployeeData.dateOfBirth} 
-                            onChange={handleEditChange} 
-                            required 
+                        <input
+                            type="date"
+                            name="dateOfBirth"
+                            value={editEmployeeData.dateOfBirth}
+                            onChange={handleEditChange}
+                            required
                         />
                         <button type="submit">Update Employee</button>
                         <button type="button" onClick={handleCancelEdit}>Cancel</button>
@@ -348,8 +369,8 @@ const ManagerPortal = () => {
 
             <Modal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)} 
-                onConfirm={confirmDelete} 
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={confirmDelete}
             />
         </div>
     );
