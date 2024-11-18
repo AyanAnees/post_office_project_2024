@@ -128,7 +128,7 @@ const Dashboard = () => {
                             </tr>
                             {selectedPackage === pkg.Package_ID && (
                                 <tr className="details-row">
-                                    <td colSpan="6">
+                                    <td colSpan="7">
                                         <div className="details">
                                             <p><strong>Details for Tracking ID {pkg.Tracking_ID}:</strong></p>
                                             {stops[pkg.Package_ID]?.map((stop, index) => (
