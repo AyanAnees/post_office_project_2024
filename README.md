@@ -71,6 +71,7 @@ At the server side:
 
 `npx nodemon server.js`  
 
-  or
+  or  
+  
 `node server.js`
 
