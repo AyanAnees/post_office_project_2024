@@ -7,9 +7,9 @@ Cougarmail Depot (also referred to as the "Post Office Project 2024" on GitHub) 
 
 ## Technologies Used
 
-Backend: JavaScript (Node.js)
-Frontend: React.js
-Database: MySQL
+- Backend: JavaScript (Node.js)
+- Frontend: React.js
+- Database: MySQL
 
 
 ## Installation
