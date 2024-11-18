@@ -52,7 +52,9 @@ Create a .env file in the project server directory with the following template:
 ### 5. Start the Application:
 At the client side:
 - cd client
-- npm start 
+- npm start
+
+  
 At the server side: 
 - cd server
 - npx nodemon server.js 
