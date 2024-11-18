@@ -26,8 +26,11 @@ Git clone https://github.com/AyanAnees/post_office_project_2024.git
 
 2. Install Dependencies:
 Open the terminal and navigate to the client directory:
-- cd client
-- npm install
+
+`cd client`  
+
+`npm install`  
+
 
 If you are still in the client directory, go back to the root directory:
 
