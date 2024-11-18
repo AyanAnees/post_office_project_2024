@@ -121,11 +121,7 @@ const App = () => {
             </ProtectedRoute>
           } />
           <Route path="/AboutUs" element={<AboutUs />} />
-          <Route path="/TrackingHistory" element={
-            <ProtectedRoute allowedRoles={["customer", "employee", "manager", "Admin"]}>
-              <TrackingHistory />
-            </ProtectedRoute>
-          } />
+          <Route path="/TrackingHistory" element={<TrackingHistory />} />
           <Route path="/CustomerProfile" element={
             <ProtectedRoute allowedRoles={["customer"]}>
               <CustomerProfile />
