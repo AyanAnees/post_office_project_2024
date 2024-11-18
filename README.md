@@ -32,32 +32,30 @@ Open the terminal and navigate to the client directory:
 If you are still in the client directory, go back to the root directory:
 
 
-- cd ..
-- cd server
-- npm install
+`cd ..`
+`cd server`
+`npm install`
 
 3. Configure Environment Variables
 Create a .env file in the project server directory with the following template:
-`
-- DB_HOST=
-- DB_USER=
-- DB_NAME=
-- DB_PASSWORD=
-- DB_PORT=
-- DB_SSL_REJECT_UNAUTHORIZED=
-`
+
+`DB_HOST=`
+`DB_USER=`
+`DB_NAME=`
+`DB_PASSWORD=`
+`DB_PORT=`
+`DB_SSL_REJECT_UNAUTHORIZED=`
+
 
 4. Import Database
 
 ### 5. Start the Application:
 At the client side:
-- cd client
-- npm start
-
-  
+`cd client`
+`npm start`
 At the server side: 
-- cd server
-- npx nodemon server.js 
-or
-- node server.js
+`cd server`
+`npx nodemon server.js`
+  or
+`node server.js`
 
