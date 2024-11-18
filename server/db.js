@@ -1,17 +1,17 @@
-// db.js
 const mysql = require('mysql2/promise'); // Use the promise-based MySQL2
+require('dotenv').config(); // Load environment variables from the .env file
 
-// Create a connection pool
+// Create a connection pool using environment variables
 const pool = mysql.createPool({
-    host: 'sqlmaster-24.mysql.database.azure.com',  // Replace with your Azure MySQL hostname
-    user: 'postoffice_admin',        // Replace with your MySQL username
-    password: 'DatabaseSystem@uh24',    // Replace with your MySQL password
-    database: 'post_office', // Replace with your MySQL database name
-    port: 3306,
+    host: process.env.DB_HOST,  // Use the environment variable for the host
+    user: process.env.DB_USER,  // Use the environment variable for the username
+    password: process.env.DB_PASSWORD,  // Use the environment variable for the password
+    database: process.env.DB_NAME,  // Use the environment variable for the database name
+    port: process.env.DB_PORT,  // Use the environment variable for the port
     ssl: {
-        rejectUnauthorized: false
+        rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true' 
     }
 });
 
 // Export the pool
-module.exports = pool; 
+module.exports = pool;
