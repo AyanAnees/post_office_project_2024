@@ -106,6 +106,7 @@ const Dashboard = () => {
                 <thead>
                     <tr>
                         <th>Tracking ID</th>
+                        <th>Package ID</th>
                         <th>Status</th>
                         <th>Sender</th>
                         <th>Recipient</th>
@@ -118,6 +119,7 @@ const Dashboard = () => {
                         <React.Fragment key={pkg.Package_ID}>
                             <tr onClick={() => handlePackageClick(pkg.Package_ID)} className={selectedPackage === pkg.Package_ID ? 'selected' : ''}>
                                 <td>{pkg.Tracking_ID}</td>
+                                <td>{pkg.Package_ID}</td>
                                 <td>{pkg.Package_Status}</td>
                                 <td>{pkg.Sender_Full_Name}</td>
                                 <td>{pkg.Recipient_Full_Name}</td>
