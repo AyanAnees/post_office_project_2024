@@ -19,13 +19,16 @@ const Notifications = () => {
     setLoading(true);
     setError(null); // Reset error before new fetch
     try {
-      const response = await fetch(
-        `${SERVER_URL}/api/notifications?userId=${userId}&userType=${role}`
-      );
+    const url = role === "manager"
+      ? `${SERVER_URL}/api/notifications?userType=${role}` // For managers, no userId in the URL
+      : `${SERVER_URL}/api/notifications?userId=${userId}&userType=${role}`; 
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to fetch notifications. Status: ${response.status}`);
       }
       const data = await response.json();
+
+      // If the user is a manager, filter only urgent and critical messages
       setNotifications(data);
     } catch (error) {
       console.error("Error fetching notifications:", error);
@@ -73,4 +76,3 @@ const Notifications = () => {
 };
 
 export default Notifications;
-

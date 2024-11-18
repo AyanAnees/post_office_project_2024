@@ -1,6 +1,4 @@
-
-
-  import React, { useState } from "react";
+import React, { useState } from "react";
   import "./contact.css";
   import { SERVER_URL } from "../../App";
 
@@ -23,24 +21,31 @@
       }));
     };
 
-   
-
     const handleSubmit = async (e) => {
       e.preventDefault();
       setLoading(true);
-    
+      
+      const Customer_ID = localStorage.getItem("Customer_ID");
+      const NewData = { ...formData, Customer_ID: Customer_ID || null };
       try {
-        const response = await fetch(`${SERVER_URL}/contact`, {
+        const response = await fetch(`${SERVER_URL}/api/contact`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(NewData),
         });
     
         if (!response.ok) {
           throw new Error("Failed to send message.");
         }
+    
+        const successMessage =
+          formData.urgency === "Critical"
+            ? "Your critical message has been sent. We will get back to you immediately!"
+            : formData.urgency === "Urgent"
+            ? "Your urgent message has been sent. We'll prioritize it!"
+            : "Your message has been sent. We'll respond as soon as possible.";
     
         setFormData({
           name: "",
@@ -49,7 +54,9 @@
           urgency: "Normal",
           message: "",
         });
+    
         setSubmitted(true);
+        alert(successMessage); // Display the appropriate message to the user
         setLoading(false);
     
         setTimeout(() => {
@@ -60,7 +67,8 @@
         alert("There was an error sending your message. Please try again later.");
         setLoading(false);
       }
-    }; 
+    };
+    
     
 
     const contactInfo = [
@@ -310,4 +318,3 @@
   };
 
   export default Contact;
-

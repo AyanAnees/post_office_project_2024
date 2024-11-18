@@ -13,6 +13,7 @@ const handleStopRoutes = require("./StopRoute");
 const handlePackagesRoute = require("./PackageRoute");
 const handleManagerPortalRoutes = require("./ManagerPortalRoute");
 const handleNotificationsRoutes = require('./NotificationsRoute');
+const handleContactRoutes = require("./ContactUsRoute");
 
 const appRoute = (req, res) => {
   const parsedUrl = url.parse(req.url, true);
@@ -51,10 +52,11 @@ const appRoute = (req, res) => {
     handlePackagesRoute(req, res);
   } else if (parsedUrl.pathname.startsWith("/api/ManagerPortal")) {
     handleManagerPortalRoutes(req, res);
-  }
-  else if (parsedUrl.pathname.startsWith('/api/notifications')) {
+  } else if (parsedUrl.pathname.startsWith('/api/notifications')) {
     handleNotificationsRoutes(req, res);
-}
+  } else if (parsedUrl.pathname.startsWith("/api/contact")) { 
+    handleContactRoutes(req, res);
+  }
 
   else {
     res.writeHead(404, { "Content-Type": "application/json" });
