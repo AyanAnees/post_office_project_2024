@@ -7,9 +7,9 @@ Cougarmail Depot (also referred to as the "Post Office Project 2024" on GitHub) 
 
 ## Technologies Used
 
-- Backend: JavaScript (Node.js)
-- Frontend: React.js
-- Database: MySQL
+Backend: JavaScript (Node.js)
+Frontend: React.js
+Database: MySQL
 
 
 ## Installation
@@ -27,35 +27,35 @@ Git clone https://github.com/AyanAnees/post_office_project_2024.git
 2. Install Dependencies:
 Open the terminal and navigate to the client directory:
 
-`cd client`  
+  `cd client`  
 
-`npm install`  
-
-
-If you are still in the client directory, go back to the root directory:
+  `npm install`  
 
 
-`cd ..`  
+ If you are still in the client directory, go back to the root directory:
 
-`cd server`  
 
-`npm install`  
+  `cd ..`  
+
+  `cd server`  
+
+  `npm install`  
 
 
 3. Configure Environment Variables
 Create a .env file in the project server directory with the following template:
 
-`DB_HOST=`  
+  `DB_HOST=`  
 
-`DB_USER=`  
+  `DB_USER=`  
 
-`DB_NAME=`  
+  `DB_NAME=`  
 
-`DB_PASSWORD=`  
+  `DB_PASSWORD=`  
 
-`DB_PORT=`  
+  `DB_PORT=`  
 
-`DB_SSL_REJECT_UNAUTHORIZED=`  
+  `DB_SSL_REJECT_UNAUTHORIZED=`  
 
 
 
@@ -64,17 +64,17 @@ Create a .env file in the project server directory with the following template:
 ### 5. Start the Application:
 At the client side:  
 
-`cd client`  
+  `cd client`  
 
-`npm start`  
+  `npm start`  
 
 At the server side:   
 
-`cd server`  
+  `cd server`  
 
-`npx nodemon server.js`  
+  `npx nodemon server.js`  
 
   or  
   
-`node server.js`
+  `node server.js`
 
